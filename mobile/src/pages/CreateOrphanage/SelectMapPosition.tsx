@@ -1,36 +1,50 @@
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
+import React, { useState } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { MapEvent, Marker } from 'react-native-maps';
 import mapMarkerImg from '../../images/map-marker.png';
 
 export default function SelectMapPosition() {
   const navigation = useNavigation();
 
+  const [position, setPosition] = useState({ latitude: 0, longitude: 0 });
+
   function handleNextStep() {
-    navigation.navigate('OrphanageData');
+    navigation.navigate('OrphanageData', { position });
+  }
+
+  function handleSelectMapPosition(event: MapEvent) {
+    setPosition(event.nativeEvent.coordinate);
   }
 
   return (
     <View style={styles.container}>
       <MapView
         initialRegion={{
-          latitude: -27.2092052,
-          longitude: -49.6401092,
+          latitude: -20.367268,
+          longitude: -40.301663,
           latitudeDelta: 0.008,
           longitudeDelta: 0.008,
         }}
-        style={styles.mapStyle}>
-        <Marker
-          icon={mapMarkerImg}
-          coordinate={{ latitude: -27.2092052, longitude: -49.6401092 }}
-        />
+        style={styles.mapStyle}
+        onPress={handleSelectMapPosition}>
+        {position.latitude !== 0 && (
+          <Marker
+            icon={mapMarkerImg}
+            coordinate={{
+              latitude: position.latitude,
+              longitude: position.longitude,
+            }}
+          />
+        )}
       </MapView>
 
-      <RectButton style={styles.nextButton} onPress={handleNextStep}>
-        <Text style={styles.nextButtonText}>Próximo</Text>
-      </RectButton>
+      {position.latitude !== 0 && (
+        <RectButton style={styles.nextButton} onPress={handleNextStep}>
+          <Text style={styles.nextButtonText}>Próximo</Text>
+        </RectButton>
+      )}
     </View>
   );
 }
